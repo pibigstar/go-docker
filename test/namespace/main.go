@@ -10,10 +10,11 @@ import (
 func main() {
 	cmd := exec.Command("sh")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		// 隔离 uts,ipc,pid,user,network
+		// 隔离 uts,ipc,pid,mount,user,network
 		Cloneflags: syscall.CLONE_NEWUTS |
 			syscall.CLONE_NEWIPC |
 			syscall.CLONE_NEWPID |
+			syscall.CLONE_NEWNS |
 			syscall.CLONE_NEWUSER |
 			syscall.CLONE_NEWNET,
 		// 设置容器的UID和GID
