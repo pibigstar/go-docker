@@ -23,3 +23,7 @@ readling /proc/进程id/ns/uts
 ```bash
 hostname -b 新名称
 ```
+- 常看当前用户和用户组
+```bash
+id
+```
