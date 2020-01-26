@@ -27,3 +27,14 @@ hostname -b 新名称
 ```bash
 id
 ```
+- 创建并挂载一个hierarchy
+> 在这个文件夹下面创建新的文件夹，会被kernel标记为该`cgroup`的子`cgroup`
+```bash
+mkdir cgroup-test
+mount -t cgroup -o none,name=cgroup-test cgroup-test ./cgroup-test
+```
+- 将其他进程移动到其他的`cgroup`中
+> 只要将该进程的ID放到其`cgroup`的`tasks`里面即可
+```bash
+echo "进程ID" >> cgroup/tasks 
+```
