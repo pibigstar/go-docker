@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+
+	"go-docker/cgroups/subsystem"
 	"go-docker/container"
 )
 
@@ -17,15 +20,42 @@ var runCommand = cli.Command{
 			Name:        "ti",
 			Usage:       "enable tty",
 		},
+		cli.StringFlag{
+			Name: "m",
+			Usage: "memory limit",
+		},
+		cli.StringFlag{
+			Name: "cpushare",
+			Usage: "cpushare limit",
+		},
+		cli.StringFlag{
+			Name: "cpuset",
+			Usage: "cpuset limit",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 		}
-		// cmd 为容器启动后运行的第一个命令程序
-		cmd := context.Args().Get(0)
 		tty := context.Bool("ti")
-		return Run(cmd, tty)
+
+		res := &subsystem.ResourceConfig{
+			MemoryLimit: context.String("m"),
+			CpuSet: context.String("cpuset"),
+			CpuShare:context.String("cpushare"),
+		}
+		// cmdArray 为容器运行后，执行的第一个命令信息
+		// cmdArray[0] 为命令内容, 后面的为命令参数
+		var cmdArray []string
+		for _, arg := range context.Args() {
+			cmdArray = append(cmdArray, arg)
+		}
+		err := Run(cmdArray, tty, res)
+		if err != nil {
+			logrus.Errorf("failed to run container, err: %v", err)
+			return err
+		}
+		return nil
 	},
 }
 
@@ -35,7 +65,6 @@ var initCommand = cli.Command{
 	Usage:                  "Init container process run user's process in container. Do not call it outside",
 	Action: func(context *cli.Context) error {
 		logrus.Infof("init come on")
-		cmd := context.Args().Get(0)
-		return container.RunContainerInitProcess(cmd, nil)
+		return container.RunContainerInitProcess()
 	},
 }
