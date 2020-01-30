@@ -12,10 +12,17 @@ import (
 var runCommand = cli.Command{
 	Name: "run",
 	Usage: "Create a container with namespace and cgroups limit",
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:        "ti",
+			Usage:       "enable tty",
+		},
+	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 		}
+		// cmd 为容器启动后运行的第一个命令程序
 		cmd := context.Args().Get(0)
 		tty := context.Bool("ti")
 		return Run(cmd, tty)
