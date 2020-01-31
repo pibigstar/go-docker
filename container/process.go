@@ -7,9 +7,10 @@ import (
 )
 
 // 创建一个会隔离namespace进程的Command
-func NewParentProcess(command string, tty bool) *exec.Cmd {
-	args := []string{"init", command}
-	cmd := exec.Command("/proc/self/exe", args...)
+func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
+	readPipe, writePipe, _ := os.Pipe()
+	// 调用自身，传入 init 参数，也就是执行 initCommand
+	cmd := exec.Command("/proc/self/exe", "init")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS |
 			syscall.CLONE_NEWNET | syscall.CLONE_NEWIPC,
@@ -19,5 +20,8 @@ func NewParentProcess(command string, tty bool) *exec.Cmd {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
-	return cmd
+	cmd.ExtraFiles = []*os.File{
+		readPipe,
+	}
+	return cmd, writePipe
 }

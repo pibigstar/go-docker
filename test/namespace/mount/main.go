@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"syscall"
 )
+
 /**
-	mount namespace 用来隔离各个进程看到的挂载点视图
- */
+mount namespace 用来隔离各个进程看到的挂载点视图
+*/
 
 func main() {
 	cmd := exec.Command("sh")
@@ -19,7 +20,7 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err !=nil {
+	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
