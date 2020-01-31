@@ -23,5 +23,5 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 	cmd.ExtraFiles = []*os.File{
 		readPipe,
 	}
-	return cmd,writePipe
+	return cmd, writePipe
 }

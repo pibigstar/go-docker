@@ -10,13 +10,15 @@ type CGroupManager struct {
 }
 
 func NewCGroupManager(path string) *CGroupManager {
-	return &CGroupManager{Path:path}
+	return &CGroupManager{Path: path}
 }
 
 func (c *CGroupManager) Set(res *subsystem.ResourceConfig) {
 	for _, subsystem := range subsystem.Subsystems {
 		err := subsystem.Set(c.Path, res)
-		logrus.Errorf("set %s err: %v", subsystem.Name(), err)
+		if err != nil {
+			logrus.Errorf("set %s err: %v", subsystem.Name(), err)
+		}
 	}
 }
 
@@ -29,7 +31,7 @@ func (c *CGroupManager) Apply(pid int) {
 	}
 }
 
-func (c *CGroupManager) Destroy()  {
+func (c *CGroupManager) Destroy() {
 	for _, subsystem := range subsystem.Subsystems {
 		err := subsystem.Remove(c.Path)
 		if err != nil {

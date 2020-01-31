@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -12,18 +11,18 @@ import (
 	"go-docker/container"
 )
 
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) error {
+func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) {
 	parent, writePipe := container.NewParentProcess(tty)
 	if parent == nil {
 		logrus.Errorf("failed to new parent process")
-		return fmt.Errorf("failed to new parent process")
+		return
 	}
-	if err := parent.Start(); err !=nil {
+	if err := parent.Start(); err != nil {
 		logrus.Errorf("parent start failed, err: %v", err)
-		return err
+		return
 	}
 	// 添加资源限制
-	cgroupMananger := cgroups.NewCGroupManager("go-docker-cgroup")
+	cgroupMananger := cgroups.NewCGroupManager("go-docker")
 	// 删除资源限制
 	defer cgroupMananger.Destroy()
 	// 设置资源限制
@@ -32,7 +31,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) error {
 	cgroupMananger.Apply(parent.Process.Pid)
 
 	sendInitCommand(cmdArray, writePipe)
-	return parent.Wait()
+	parent.Wait()
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {

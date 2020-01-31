@@ -6,10 +6,11 @@ import (
 	"os/exec"
 	"syscall"
 )
+
 /**
-	uts namespace 主要是用来隔离 nodename和 domainname 两个系统标识的
-	每个uts中允许有自己的 hostname
- */
+uts namespace 主要是用来隔离 nodename和 domainname 两个系统标识的
+每个uts中允许有自己的 hostname
+*/
 
 func main() {
 	cmd := exec.Command("sh")
@@ -20,7 +21,7 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err !=nil {
+	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

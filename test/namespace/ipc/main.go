@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"syscall"
 )
+
 /**
-	ipc namespace 主要是用来隔离 System VIPC 和 POSIX message queues的
- */
+ipc namespace 主要是用来隔离 System VIPC 和 POSIX message queues的
+*/
 func main() {
 	cmd := exec.Command("sh")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -18,7 +19,7 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err !=nil {
+	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

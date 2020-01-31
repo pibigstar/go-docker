@@ -23,8 +23,8 @@ func main() {
 				// 容器的UID
 				ContainerID: 1,
 				// 宿主机的UID
-				HostID:      0,
-				Size:        1,
+				HostID: 0,
+				Size:   1,
 			},
 		},
 		GidMappings: []syscall.SysProcIDMap{
@@ -32,8 +32,8 @@ func main() {
 				// 容器的GID
 				ContainerID: 1,
 				// 宿主机的GID
-				HostID:      0,
-				Size:        1,
+				HostID: 0,
+				Size:   1,
 			},
 		},
 	}
@@ -41,7 +41,7 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err !=nil {
+	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

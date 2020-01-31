@@ -19,10 +19,11 @@ func (*CpuSetSubSystem) Name() string {
 func (c *CpuSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	subsystemCgroupPath, err := GetCgroupPath(c.Name(), cgroupPath, true)
 	if err != nil {
+		logrus.Errorf("get %s path, err: %v", cgroupPath, err)
 		return err
 	}
 	if res.CpuSet != "" {
-		err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpuset.cpus"),[]byte(res.CpuSet), 0644)
+		err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpuset.cpus"), []byte(res.CpuSet), 0644)
 		if err != nil {
 			logrus.Errorf("failed to write file cpuset.cpus, err: %+v", err)
 			return err
@@ -36,7 +37,7 @@ func (c *CpuSetSubSystem) Remove(cgroupPath string) error {
 	if err != nil {
 		return err
 	}
-	return os.Remove(subsystemCgroupPath)
+	return os.RemoveAll(subsystemCgroupPath)
 }
 
 func (c *CpuSetSubSystem) Apply(cgroupPath string, pid int) error {
@@ -44,5 +45,11 @@ func (c *CpuSetSubSystem) Apply(cgroupPath string, pid int) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(path.Join(subsystemCgroupPath, "tasks"),[]byte(strconv.Itoa(pid)), 0644)
+	tasksPath := path.Join(subsystemCgroupPath, "tasks")
+	err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), 0644)
+	if err != nil {
+		logrus.Errorf("write pid to tasks, path: %s, pid: %d, err: %v", tasksPath, pid, err)
+		return err
+	}
+	return nil
 }

@@ -12,16 +12,16 @@ import (
 
 // 获取cgroup在文件系统中的绝对路径
 func GetCgroupPath(subsystem string, cgroupPath string, autoCreate bool) (string, error) {
-	cgroupRootPath, err  := findCgroupMountPoint(subsystem)
+	cgroupRootPath, err := findCgroupMountPoint(subsystem)
 	if err != nil {
 		logrus.Errorf("find cgroup mount point, err: %s", err.Error())
 		return "", err
 	}
 	cgroupTotalPath := path.Join(cgroupRootPath, cgroupPath)
-	 _, err = os.Stat(cgroupTotalPath)
-	if err == nil || (autoCreate && os.IsNotExist(err)){
+	_, err = os.Stat(cgroupTotalPath)
+	if err == nil || (autoCreate && os.IsNotExist(err)) {
 		if os.IsNotExist(err) {
-			if err := os.Mkdir(cgroupTotalPath, 0755); err !=nil {
+			if err := os.MkdirAll(cgroupTotalPath, 0755); err != nil {
 				return "", err
 			}
 		}
@@ -42,11 +42,11 @@ func findCgroupMountPoint(subystem string) (string, error) {
 	for scanner.Scan() {
 		txt := scanner.Text()
 		fields := strings.Split(txt, " ")
-		for _, opt := range strings.Split(fields[len(fields) - 1], ",") {
+		for _, opt := range strings.Split(fields[len(fields)-1], ",") {
 			if opt == subystem && len(fields) > 4 {
 				return fields[4], nil
 			}
 		}
 	}
-	return  "", scanner.Err()
+	return "", scanner.Err()
 }

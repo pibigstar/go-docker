@@ -13,23 +13,23 @@ import (
 // 创建namespace隔离的容器进程
 // 启动容器
 var runCommand = cli.Command{
-	Name: "run",
+	Name:  "run",
 	Usage: "Create a container with namespace and cgroups limit",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
-			Name:        "ti",
-			Usage:       "enable tty",
+			Name:  "ti",
+			Usage: "enable tty",
 		},
 		cli.StringFlag{
-			Name: "m",
+			Name:  "m",
 			Usage: "memory limit",
 		},
 		cli.StringFlag{
-			Name: "cpushare",
+			Name:  "cpushare",
 			Usage: "cpushare limit",
 		},
 		cli.StringFlag{
-			Name: "cpuset",
+			Name:  "cpuset",
 			Usage: "cpuset limit",
 		},
 	},
@@ -41,8 +41,8 @@ var runCommand = cli.Command{
 
 		res := &subsystem.ResourceConfig{
 			MemoryLimit: context.String("m"),
-			CpuSet: context.String("cpuset"),
-			CpuShare:context.String("cpushare"),
+			CpuSet:      context.String("cpuset"),
+			CpuShare:    context.String("cpushare"),
 		}
 		// cmdArray 为容器运行后，执行的第一个命令信息
 		// cmdArray[0] 为命令内容, 后面的为命令参数
@@ -50,19 +50,15 @@ var runCommand = cli.Command{
 		for _, arg := range context.Args() {
 			cmdArray = append(cmdArray, arg)
 		}
-		err := Run(cmdArray, tty, res)
-		if err != nil {
-			logrus.Errorf("failed to run container, err: %v", err)
-			return err
-		}
+		Run(cmdArray, tty, res)
 		return nil
 	},
 }
 
 // 初始化容器内容,挂载proc文件系统，运行用户执行程序
 var initCommand = cli.Command{
-	Name:                   "init",
-	Usage:                  "Init container process run user's process in container. Do not call it outside",
+	Name:  "init",
+	Usage: "Init container process run user's process in container. Do not call it outside",
 	Action: func(context *cli.Context) error {
 		logrus.Infof("init come on")
 		return container.RunContainerInitProcess()

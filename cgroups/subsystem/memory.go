@@ -13,12 +13,13 @@ type MemorySubSystem struct {
 }
 
 func (*MemorySubSystem) Name() string {
-	return "cpu"
+	return "memory"
 }
 
 func (m *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
 	if err != nil {
+		logrus.Errorf("get %s path, err: %v", cgroupPath, err)
 		return err
 	}
 	if res.MemoryLimit != "" {
@@ -37,7 +38,7 @@ func (m *MemorySubSystem) Remove(cgroupPath string) error {
 	if err != nil {
 		return err
 	}
-	return os.Remove(subsystemCgroupPath)
+	return os.RemoveAll(subsystemCgroupPath)
 }
 
 func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
@@ -45,9 +46,10 @@ func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path.Join(subsystemCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644)
-	if err !=nil {
-		logrus.Errorf("write pid to tasks, err: %v", err)
+	tasksPath := path.Join(subsystemCgroupPath, "tasks")
+	err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), 0644)
+	if err != nil {
+		logrus.Errorf("write pid to tasks, path: %s, pid: %d, err: %v", tasksPath, pid, err)
 		return err
 	}
 	return nil

@@ -26,7 +26,7 @@ func main() {
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err !=nil {
+		if err := cmd.Run(); err != nil {
 			panic(err)
 		}
 	}
@@ -38,7 +38,7 @@ func main() {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err:= cmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		panic(err)
 	}
@@ -47,15 +47,15 @@ func main() {
 
 	// 创建子cgroup
 	newCgroup := path.Join(cgroupMemoryHierarchyMount, "testmemorylimit")
-	if err := os.Mkdir(newCgroup, 0755); err !=nil {
+	if err := os.Mkdir(newCgroup, 0755); err != nil {
 		panic(err)
 	}
 	// 将容器进程放到子cgroup中
-	if err := ioutil.WriteFile(path.Join(newCgroup, "tasks"), []byte(strconv.Itoa(cmd.Process.Pid)), 0644); err !=nil {
+	if err := ioutil.WriteFile(path.Join(newCgroup, "tasks"), []byte(strconv.Itoa(cmd.Process.Pid)), 0644); err != nil {
 		panic(err)
 	}
 	// 限制cgroup的内存使用
-	if err := ioutil.WriteFile(path.Join(newCgroup, "memory.limit_in_bytes"), []byte("100m"), 0644); err !=nil {
+	if err := ioutil.WriteFile(path.Join(newCgroup, "memory.limit_in_bytes"), []byte("100m"), 0644); err != nil {
 		panic(err)
 	}
 	cmd.Process.Wait()
