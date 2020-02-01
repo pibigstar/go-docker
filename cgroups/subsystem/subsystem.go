@@ -27,6 +27,7 @@ type Subystem interface {
 var (
 	Subsystems = []Subystem{
 		&MemorySubSystem{},
+		// 设置tasks时，这两个必须同时设置
 		&CpuSubSystem{},
 		&CpuSetSubSystem{},
 	}
