@@ -2,7 +2,6 @@ package subsystem
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -19,15 +18,13 @@ func GetCgroupPath(subsystem string, cgroupPath string, autoCreate bool) (string
 	}
 	cgroupTotalPath := path.Join(cgroupRootPath, cgroupPath)
 	_, err = os.Stat(cgroupTotalPath)
-	if err == nil || (autoCreate && os.IsNotExist(err)) {
-		if os.IsNotExist(err) {
-			if err := os.MkdirAll(cgroupTotalPath, 0755); err != nil {
-				return "", err
-			}
+	if err != nil && os.IsNotExist(err) {
+		if err := os.MkdirAll(cgroupTotalPath, 0755); err != nil {
+			return "", err
 		}
-		return cgroupTotalPath, nil
 	}
-	return "", fmt.Errorf("cgroup path error")
+
+	return cgroupTotalPath, nil
 }
 
 // 找到挂载了 subsystem 的hierarchy cgroup根节点所在的目录

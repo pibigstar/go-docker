@@ -58,3 +58,8 @@ mount -t cgroup -o none,name=cgroup-test cgroup-test ./cgroup-test
 ```bash
 echo "进程ID" >> cgroup/tasks 
 ```
+
+- 导出容器
+```bash
+docker export -o busybox.tar 45c98e055883(容器ID)
+```
