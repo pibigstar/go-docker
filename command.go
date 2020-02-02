@@ -32,25 +32,31 @@ var runCommand = cli.Command{
 			Name:  "cpuset",
 			Usage: "cpuset limit",
 		},
+		cli.StringFlag{
+			Name:  "v",
+			Usage: "docker volume",
+		},
 	},
-	Action: func(context *cli.Context) error {
-		if len(context.Args()) < 1 {
+	Action: func(ctx *cli.Context) error {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 		}
-		tty := context.Bool("ti")
+		tty := ctx.Bool("ti")
+		volume := ctx.String("v")
 
 		res := &subsystem.ResourceConfig{
-			MemoryLimit: context.String("m"),
-			CpuSet:      context.String("cpuset"),
-			CpuShare:    context.String("cpushare"),
+			MemoryLimit: ctx.String("m"),
+			CpuSet:      ctx.String("cpuset"),
+			CpuShare:    ctx.String("cpushare"),
 		}
 		// cmdArray 为容器运行后，执行的第一个命令信息
 		// cmdArray[0] 为命令内容, 后面的为命令参数
 		var cmdArray []string
-		for _, arg := range context.Args() {
+		for _, arg := range ctx.Args() {
 			cmdArray = append(cmdArray, arg)
 		}
-		Run(cmdArray, tty, res)
+
+		Run(cmdArray, tty, res, volume)
 		return nil
 	},
 }
@@ -59,8 +65,28 @@ var runCommand = cli.Command{
 var initCommand = cli.Command{
 	Name:  "init",
 	Usage: "Init container process run user's process in container. Do not call it outside",
-	Action: func(context *cli.Context) error {
+	Action: func(ctx *cli.Context) error {
 		logrus.Infof("init come on")
 		return container.RunContainerInitProcess()
+	},
+}
+
+// 导出容器内容
+var commitCommand = cli.Command{
+	Name:  "commit",
+	Usage: "docker commit a container into image",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "c",
+			Usage: "export image path",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		if len(ctx.Args()) < 1 {
+			return fmt.Errorf("missing container name")
+		}
+		imageName := ctx.Args().Get(0)
+		imagePath := ctx.String("c")
+		return container.CommitContainer(imageName, imagePath)
 	},
 }

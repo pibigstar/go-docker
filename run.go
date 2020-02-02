@@ -12,8 +12,8 @@ import (
 	"go-docker/container"
 )
 
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) {
-	parent, writePipe := container.NewParentProcess(tty)
+func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, volume string) {
+	parent, writePipe := container.NewParentProcess(tty, volume)
 	if parent == nil {
 		logrus.Errorf("failed to new parent process")
 		return
@@ -40,7 +40,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) {
 		logrus.Errorf("parent wait, err: %v", err)
 	}
 	// 删除容器工作空间
-	err = container.DeleteWorkSpace(common.RootPath, common.MntPath)
+	err = container.DeleteWorkSpace(common.RootPath, common.MntPath, volume)
 	if err != nil {
 		logrus.Errorf("delete work space, err: %v", err)
 	}

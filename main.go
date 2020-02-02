@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	"os"
 )
 
 const usage = `go-docker`
@@ -16,6 +17,7 @@ func main() {
 	app.Commands = []cli.Command{
 		runCommand,
 		initCommand,
+		commitCommand,
 	}
 	app.Before = func(context *cli.Context) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
