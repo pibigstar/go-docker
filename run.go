@@ -8,6 +8,7 @@ import (
 
 	"go-docker/cgroups"
 	"go-docker/cgroups/subsystem"
+	"go-docker/common"
 	"go-docker/container"
 )
 
@@ -30,8 +31,19 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig) {
 	// 将容器进程，加入到各个subsystem挂载对应的cgroup中
 	cgroupMananger.Apply(parent.Process.Pid)
 
+	// 设置初始化命令
 	sendInitCommand(cmdArray, writePipe)
-	parent.Wait()
+
+	// 等待父进程结束
+	err := parent.Wait()
+	if err != nil {
+		logrus.Errorf("parent wait, err: %v", err)
+	}
+	// 删除容器工作空间
+	err = container.DeleteWorkSpace(common.RootPath, common.MntPath)
+	if err != nil {
+		logrus.Errorf("delete work space, err: %v", err)
+	}
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {

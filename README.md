@@ -25,6 +25,32 @@
 > 标记为它的`子cgroup`, 比如要限制内存使用，则在`/sys/fs/cgroup/memory/` 下创建`test-limit-memory`文件夹即可，将
 > 内存限制数写到该文件夹里面的 `memory.limit_in_bytes`即可
 
+
+## 环境配置
+### 设置CentOS支持aufs
+查看是否支持
+```bash
+cat /proc/filesystems
+```
+安装aufs
+```bash
+cd /etc/yum.repo.d
+# 下载文件
+wget https://yum.spaceduck.org/kernel-ml-aufs/kernel-ml-aufs.repo
+# 安装
+yum install kernel-ml-aufs
+# 修改内核启动
+vim /etc/default/grub
+## 修改参数
+GRUB_DEFAULT=0
+
+# 重新生成grub.cfg
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# 重启计算机
+reboot
+```
+
 ## 指令小记
 
 - 查看Linux程序父进程
@@ -62,4 +88,8 @@ echo "进程ID" >> cgroup/tasks
 - 导出容器
 ```bash
 docker export -o busybox.tar 45c98e055883(容器ID)
+```
+- 移除mount
+```bash
+unshare -m
 ```
