@@ -2,6 +2,7 @@ package util
 
 import (
 	"os/exec"
+	"path"
 	"syscall"
 	"testing"
 )
@@ -24,4 +25,9 @@ func TestChangeRunDir(t *testing.T) {
 	cmd := exec.Command("pwd")
 	bs, _ := cmd.CombinedOutput()
 	t.Log(string(bs))
+}
+
+func TestPathJoin(t *testing.T) {
+	newPath := path.Join("/root/", "busybox.tar")
+	t.Log(newPath)
 }

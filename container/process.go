@@ -4,6 +4,10 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
+
+	"go-docker/common"
 )
 
 // 创建一个会隔离namespace进程的Command
@@ -23,7 +27,11 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 	cmd.ExtraFiles = []*os.File{
 		readPipe,
 	}
+	err := NewWorkSpace(common.RootPath, common.MntPath)
+	if err != nil {
+		logrus.Errorf("new work space, err: %v", err)
+	}
 	// 指定容器初始化后的工作目录
-	cmd.Dir = "/root/busybox"
+	cmd.Dir = common.MntPath
 	return cmd, writePipe
 }
