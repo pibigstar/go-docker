@@ -9,6 +9,7 @@ import (
 	"go-docker/common"
 )
 
+// 删除容器
 func RemoveContainer(containerName string) {
 	info, err := getContainerInfo(containerName)
 	if err != nil {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"go-docker/common"
 	"os"
 	"strings"
 
@@ -12,12 +11,12 @@ import (
 	"go-docker/container"
 )
 
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, volume, containerName string) {
+func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerName, imageName, volume string, envs []string) {
 	id := container.GenContainerID(10)
 	if containerName == "" {
 		containerName = id
 	}
-	parent, writePipe := container.NewParentProcess(tty, volume, containerName)
+	parent, writePipe := container.NewParentProcess(tty, volume, containerName, imageName, envs)
 	if parent == nil {
 		logrus.Errorf("failed to new parent process")
 		return
@@ -51,7 +50,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, volume, con
 			logrus.Errorf("parent wait, err: %v", err)
 		}
 		// 删除容器工作空间
-		err = container.DeleteWorkSpace(common.RootPath, common.MntPath, volume)
+		err = container.DeleteWorkSpace(containerName, volume)
 		if err != nil {
 			logrus.Errorf("delete work space, err: %v", err)
 		}
