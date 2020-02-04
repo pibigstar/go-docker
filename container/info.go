@@ -24,6 +24,7 @@ type ContainerInfo struct {
 	Status     string `json:"status"`
 }
 
+// 记录容器信息
 func RecordContainerInfo(containerPID int, cmdArray []string, containerName, containerID string) error {
 	info := &ContainerInfo{
 		Pid:        strconv.Itoa(containerPID),

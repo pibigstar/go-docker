@@ -45,6 +45,10 @@ var runCommand = cli.Command{
 			Name:  "name",
 			Usage: "container name",
 		},
+		cli.StringSliceFlag{
+			Name:  "e",
+			Usage: "docker env",
+		},
 	},
 	Action: func(ctx *cli.Context) error {
 		if len(ctx.Args()) < 1 {
@@ -57,14 +61,13 @@ var runCommand = cli.Command{
 			CpuShare:    ctx.String("cpushare"),
 		}
 		// cmdArray 为容器运行后，执行的第一个命令信息
-		// cmdArray[0] 为命令内容, 后面的为命令参数
+		// cmdArray[0] 为镜像名, .Tail() 是去掉第一个后的全部参数
 		var cmdArray []string
-		for _, arg := range ctx.Args() {
+		for _, arg := range ctx.Args().Tail() {
 			cmdArray = append(cmdArray, arg)
 		}
 
 		tty := ctx.Bool("ti")
-		volume := ctx.String("v")
 		detach := ctx.Bool("d")
 
 		if tty && detach {
@@ -72,7 +75,12 @@ var runCommand = cli.Command{
 		}
 
 		containerName := ctx.String("name")
-		Run(cmdArray, tty, res, volume, containerName)
+		volume := ctx.String("v")
+		// 要运行的镜像名
+		imageName := ctx.Args().Get(0)
+		envs := ctx.StringSlice("e")
+
+		Run(cmdArray, tty, res, containerName, imageName, volume, envs)
 		return nil
 	},
 }
@@ -124,7 +132,7 @@ var logCommand = cli.Command{
 			return fmt.Errorf("missing container name")
 		}
 		containerName := ctx.Args().Get(0)
-		container.LookContainerName(containerName)
+		container.LookContainerLog(containerName)
 		return nil
 	},
 }

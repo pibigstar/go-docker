@@ -1,32 +1,14 @@
 # go-docker
 > 用go写一个docker
 
-**注意**
+## 环境配置
+- 开发环境： windows
+- 运行环境： CentOS
+
+### windows中goland配置
 > windows下要修改goland的OS环境为 linux,不然只会引用`exec_windows.go`而不会引用`exec_linxu_go`
 > 在Setting->Go->Build Tags & Vendoring -> OS=linux
 
-## namespace
-- uts : 隔离主机名
-- pid : 隔离进程pid
-- user : 隔离用户
-- network : 隔离网络
-- mount : 隔离挂载点
-- ipc : 隔离System VIPC和POSIX message queues
-
-## cgroup
-> 主要是使用三个组件相互协作实现的，分别是：subsystem, hierarchy, cgroup,
-
-- cgroup: 是对进程分组管理的一种机制
-- subsystem: 是一组资源控制的模块
-- hierarchy: 把一组cgroup串成一个树状结构(可让其实现继承)
-
-### 实现方式
-> 主要实现方式是在`/sys/fs/cgroup/` 文件夹下，根据限制的不同，创建一个新的文件夹即可，kernel会将这个文件夹
-> 标记为它的`子cgroup`, 比如要限制内存使用，则在`/sys/fs/cgroup/memory/` 下创建`test-limit-memory`文件夹即可，将
-> 内存限制数写到该文件夹里面的 `memory.limit_in_bytes`即可
-
-
-## 环境配置
 ### 设置CentOS支持aufs
 查看是否支持
 ```bash
@@ -50,6 +32,67 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 # 重启计算机
 reboot
 ```
+### 配置busybox
+```bash
+# 下载 busybox
+docker pull busybox
+# 运行
+docker run -d busybox top -b
+# 导出
+docker export -o busybox.tar (容器ID)
+# 解压到 /root文件夹下
+cd /root
+mkdir busybox
+tar -xvf busybox.tar -C busybox/
+```
+
+## 使用指南
+```bash
+# 编译
+go build .
+
+# 启动一个容器
+./go-docker run -ti --name test sh
+
+# 后台启动
+./go-docker run -d --name test sh
+
+# 进入容器
+./go-docker exec test sh
+
+# 查看容器日志
+./go-docker logs test
+
+# 查看容器列表
+./go-docker ps
+
+# 停止容器
+./go-docker stop test
+
+# 删除容器
+./go-docker rm test
+```
+
+## docker核心技术
+### namespace
+- uts : 隔离主机名
+- pid : 隔离进程pid
+- user : 隔离用户
+- network : 隔离网络
+- mount : 隔离挂载点
+- ipc : 隔离System VIPC和POSIX message queues
+
+### cgroup
+> 主要是使用三个组件相互协作实现的，分别是：subsystem, hierarchy, cgroup,
+
+- cgroup: 是对进程分组管理的一种机制
+- subsystem: 是一组资源控制的模块
+- hierarchy: 把一组cgroup串成一个树状结构(可让其实现继承)
+
+#### 实现方式
+> 主要实现方式是在`/sys/fs/cgroup/` 文件夹下，根据限制的不同，创建一个新的文件夹即可，kernel会将这个文件夹
+> 标记为它的`子cgroup`, 比如要限制内存使用，则在`/sys/fs/cgroup/memory/` 下创建`test-limit-memory`文件夹即可，将
+> 内存限制数写到该文件夹里面的 `memory.limit_in_bytes`即可
 
 ## 指令小记
 
