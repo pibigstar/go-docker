@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"go-docker/common"
+	"go-docker/network"
 	"os"
 
 	"go-docker/cgroups/subsystem"
@@ -49,6 +50,14 @@ var runCommand = cli.Command{
 			Name:  "e",
 			Usage: "docker env",
 		},
+		cli.StringFlag{
+			Name:  "net",
+			Usage: "container network",
+		},
+		cli.StringSliceFlag{
+			Name:  "p",
+			Usage: "port mapping",
+		},
 	},
 	Action: func(ctx *cli.Context) error {
 		if len(ctx.Args()) < 1 {
@@ -76,11 +85,13 @@ var runCommand = cli.Command{
 
 		containerName := ctx.String("name")
 		volume := ctx.String("v")
+		net := ctx.String("net")
 		// 要运行的镜像名
 		imageName := ctx.Args().Get(0)
 		envs := ctx.StringSlice("e")
+		ports := ctx.StringSlice("p")
 
-		Run(cmdArray, tty, res, containerName, imageName, volume, envs)
+		Run(cmdArray, tty, res, containerName, imageName, volume, net, envs, ports)
 		return nil
 	},
 }
@@ -185,5 +196,76 @@ var removeCommand = cli.Command{
 		containerName := ctx.Args().Get(0)
 		container.RemoveContainer(containerName)
 		return nil
+	},
+}
+
+var networkCommand = cli.Command{
+	Name:  "network",
+	Usage: "container network commands",
+	Subcommands: []cli.Command{
+		{
+			Name:  "create",
+			Usage: "create a container network",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "driver",
+					Usage: "network driver",
+				},
+				cli.StringFlag{
+					Name:  "subnet",
+					Usage: "subnet cidr",
+				},
+			},
+			Action: func(context *cli.Context) error {
+				if len(context.Args()) < 1 {
+					return fmt.Errorf("Missing network name")
+				}
+				err := network.Init()
+				if err != nil {
+					logrus.Errorf("network init failed, err: %v", err)
+					return err
+				}
+				// 创建网络
+				err = network.CreateNetwork(context.String("driver"), context.String("subnet"), context.Args()[0])
+				if err != nil {
+					return fmt.Errorf("create network error: %+v", err)
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "list",
+			Usage: "list container network",
+			Action: func(context *cli.Context) error {
+				err := network.Init()
+				if err != nil {
+					logrus.Errorf("network init failed, err: %v", err)
+					return err
+				}
+
+				network.ListNetwork()
+				return nil
+			},
+		},
+		{
+			Name:  "remove",
+			Usage: "remove container network",
+			Action: func(context *cli.Context) error {
+				if len(context.Args()) < 1 {
+					return fmt.Errorf("Missing network name")
+				}
+
+				err := network.Init()
+				if err != nil {
+					logrus.Errorf("network init failed, err: %v", err)
+					return err
+				}
+				err = network.DeleteNetwork(context.Args()[0])
+				if err != nil {
+					return fmt.Errorf("remove network error: %+v", err)
+				}
+				return nil
+			},
+		},
 	},
 }
